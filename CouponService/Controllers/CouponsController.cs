@@ -21,7 +21,7 @@ namespace CouponService.Controllers
         }
 
         [HttpPost]
-        [Route("coupon")]
+        [Route("coupons")]
         public ActionResult Post(Coupon coupon)
         {
             try

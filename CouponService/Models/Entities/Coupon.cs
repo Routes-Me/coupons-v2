@@ -15,7 +15,7 @@ namespace CouponService.Models.Entities
 
         public int? UserId { get; set; }
 
-        public DateTime? CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; } = DateTime.Now;
 
         public virtual Promotion Promotion { get; set; }
 
