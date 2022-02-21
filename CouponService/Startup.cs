@@ -1,3 +1,4 @@
+using CouponService.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -26,6 +27,13 @@ namespace CouponService
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddController();
+            services.Cors();
+            services.AddDbContexts(Configuration);
+            services.AddInjections();
+            services.AddCronJob();
+            services.AddConfigurations(Configuration);
+            services.AddApiVersioning();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -42,10 +50,9 @@ namespace CouponService
 
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            app.UseCors("MyPolicy");
+
+            app.UseEndpoints(endpoints => endpoints.MapControllers());
         }
     }
 }
