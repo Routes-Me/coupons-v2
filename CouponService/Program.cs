@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,14 +15,20 @@ namespace CouponService
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            string standardVersion = "Standard version: " + "{0}.{1}.{2}";
+            Version standard = new Version(1, 0, 0);
+            Console.WriteLine(standardVersion, standard.Major, standard.Minor, standard.Build);
+
+            CreateWebHostBuilder(args).Build().Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args)
+        {
+            return WebHost.CreateDefaultBuilder(args).ConfigureAppConfiguration((hostingContext, config) =>
+            {
+                config.SetBasePath(Directory.GetCurrentDirectory());
+            })
+                .UseStartup<Startup>();
+        }
     }
 }
