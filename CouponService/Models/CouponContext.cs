@@ -43,6 +43,7 @@ namespace AdvertisementService.Models
                 entity.HasOne(d => d.Promotion)
                     .WithMany(p => (System.Collections.Generic.IEnumerable<Coupon>)p.Coupons)
                     .HasForeignKey(d => d.PromotionId)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("coupons_ibfk_1");
             });
 
@@ -81,6 +82,7 @@ namespace AdvertisementService.Models
                 entity.HasOne(d => d.Promotion)
                     .WithMany(p => (System.Collections.Generic.IEnumerable<Link>)p.Links)
                     .HasForeignKey(d => d.PromotionId)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("links_ibfk_1");
             });
 
@@ -170,6 +172,7 @@ namespace AdvertisementService.Models
                     .HasColumnType("timestamp");
 
                 entity.Property(e => e.UsageLimit).HasColumnName("usage_limit");
+
             });
 
             //modelBuilder.Entity<PromotionsPlace>(entity =>
