@@ -3,6 +3,7 @@ using CouponService.Models;
 using CouponService.Models.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RoutesSecurity;
 using System;
 using static CouponService.Models.ResponseModel.Response;
 
@@ -61,6 +62,26 @@ namespace CouponService.Controllers
             catch (Exception ex)
             {
                 _unitOfWork.Rollback();
+                return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ExceptionResponse(ex));
+            }
+        }
+
+        [HttpDelete]
+        [Route("promotions/{id}")]
+        public IActionResult Delete(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ErrorResponse(CommonMessage.InvalidData, 400));
+                }
+                _unitOfWork.PromotionRepository.Delete(Obfuscation.Decode(id));
+                _unitOfWork.Save();
+                return StatusCode(StatusCodes.Status204NoContent);
+            }
+            catch (Exception ex)
+            {
                 return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ExceptionResponse(ex));
             }
         }
