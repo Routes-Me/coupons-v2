@@ -26,10 +26,6 @@ namespace CouponService.Repository
             T entityToDelete = dbSet.Find(id);
             Delete(entityToDelete);
         }
-        public T SingleOrDefault(Expression<Func<T, bool>> predicate)
-        {
-            return dbSet.SingleOrDefault(predicate);
-        }
         public void Delete(T entityToDelete)
         {
             if (_context.Entry(entityToDelete).State == EntityState.Detached)
@@ -39,9 +35,13 @@ namespace CouponService.Repository
             dbSet.Remove(entityToDelete);
         }
 
-        public async Task<IEnumerable<T>> Find(Expression<Func<T, bool>> predicate)
+        public IEnumerable<T> Find(Expression<Func<T, bool>> predicate)
         {
-            return await dbSet.Where(predicate).ToListAsync();
+            return dbSet.Where(predicate).ToList();
+        }
+        public T Where(Expression<Func<T, bool>> predicate)
+        {
+            return dbSet.Where(predicate).FirstOrDefault();
         }
 
         public IEnumerable<T> Get(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, params Expression<Func<T, object>>[] includeProperties)
@@ -100,13 +100,21 @@ namespace CouponService.Repository
             dbSet.Attach(entity);
             _context.Entry(entity).State = EntityState.Modified;
         }
-        public void RemoveRange(IEnumerable<T> entities)
-        {
-            dbSet.RemoveRange(entities);
-        }
+
         public void Remove(T entity)
         {
             _context.Entry(entity).State = EntityState.Deleted;
         }
+
+        public void RemoveRange(IEnumerable<T> entities)
+        {
+            dbSet.RemoveRange(entities);
+        }
+
+        public T SingleOrDefault(Expression<Func<T, bool>> predicate)
+        {
+            return dbSet.SingleOrDefault(predicate);
+        }
+
     }
 }

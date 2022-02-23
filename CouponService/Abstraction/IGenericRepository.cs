@@ -20,5 +20,8 @@ namespace CouponService.Abstraction
         void Put(T entity);
         void RemoveRange(IEnumerable<T> entities);
         void Remove(T entity);
+        IEnumerable<T> Find(Expression<Func<T, bool>> predicate);
+        T Where(Expression<Func<T, bool>> predicate);
+
     }
 }

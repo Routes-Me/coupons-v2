@@ -65,7 +65,6 @@ namespace CouponService.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ExceptionResponse(ex));
             }
         }
-
         [HttpDelete]
         [Route("promotions/{id}")]
         public IActionResult Delete(string id)
@@ -78,7 +77,30 @@ namespace CouponService.Controllers
                 }
                 _unitOfWork.PromotionRepository.Delete(Obfuscation.Decode(id));
                 _unitOfWork.Save();
-                return StatusCode(StatusCodes.Status204NoContent);
+                return StatusCode(StatusCodes.Status200OK, ReturnResponse.SuccessResponse(CommonMessage.PromotionsDelete, false));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ExceptionResponse(ex));
+            }
+        }
+
+
+        [HttpDelete]
+        [Route("promotions/advertisements/{advertisementId?}")]
+        public IActionResult DeletePromotionsFromAdvertisementID([FromQuery] string advertisementId)
+        {
+
+            try
+            {
+                if (string.IsNullOrEmpty(advertisementId))
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ErrorResponse(CommonMessage.InvalidData, 400));
+                }
+                Promotion promotion = _unitOfWork.PromotionRepository.Where(x => x.AdvertisementId == Obfuscation.Decode(advertisementId));
+                _unitOfWork.PromotionRepository.Delete(promotion.PromotionId);
+                _unitOfWork.Save();
+                return StatusCode(StatusCodes.Status200OK, ReturnResponse.SuccessResponse(CommonMessage.PromotionsDelete, false));
             }
             catch (Exception ex)
             {
