@@ -25,7 +25,7 @@ namespace CouponService.Models.Entities
         public int Institution_Id { get; set; }
         public bool? IsSharable { get; set; }
         public string LogoUrl { get; set; }
-        public PromotionType Type { get; set; }
+        public PromotionType? Type { get; set; }
         public string Code { get; set; }
         public virtual Coupon Coupons { get; set; }
         public virtual Link Links { get; set; }

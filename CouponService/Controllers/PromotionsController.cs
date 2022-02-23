@@ -63,7 +63,7 @@ namespace CouponService.Controllers
 
                     }
                     _unitOfWork.Commit();
-                    return StatusCode(StatusCodes.Status200OK, ReturnResponse.SuccessResponse(CommonMessage.PromotionsInsert, true));
+                    return StatusCode(StatusCodes.Status200OK, ReturnResponse.SuccessResponse(CommonMessage.PromotionsInsert, true, promotion.PromotionId));
                 }
             }
             catch (Exception ex)
