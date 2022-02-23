@@ -48,5 +48,6 @@
         public static string CodeLength = "Code length should not more than 5 characters.";
         public static string LinksRequired = "Links are required.";
         public static string WebLinkRequired = "Web link is required.";
+        public static string InvalidData = "Data is Invalid";
     }
 }
