@@ -25,38 +25,44 @@ namespace CouponService.Controllers
         {
             try
             {
-
-                promotion.Code = !string.IsNullOrEmpty(promotion.Code) ? (promotion.Code.Length > 5 ? promotion.Code.Substring(0, 5) : promotion.Code) : null;
-
-                promotion.StartAt = string.IsNullOrEmpty(promotion.StartAt.ToString()) ? DateTime.Now : promotion.StartAt;
-                promotion.EndAt = string.IsNullOrEmpty(promotion.EndAt.ToString()) ? DateTime.Now.AddMonths(1) : promotion.EndAt;
-
-                if (!string.IsNullOrEmpty(promotion.Type.ToString()))
+                //required params common in both coupon and links
+                if (string.IsNullOrEmpty(promotion.Title) || string.IsNullOrEmpty(promotion.Subtitle) || string.IsNullOrEmpty(promotion.Code) || string.IsNullOrEmpty(promotion.Type.ToString()) || promotion.AdvertisementId == null || promotion.InstitutionId == null)
                 {
-                    if (promotion.Type.Equals(PromotionType.coupons))
-                    {
-                        promotion.UsageLimit = string.IsNullOrEmpty(promotion.UsageLimit.ToString()) ? 1000 : promotion.UsageLimit;
-                    }
+                    return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ErrorResponse(CommonMessage.InvalidData, 400));
                 }
                 else
-                    return StatusCode(StatusCodes.Status404NotFound, ReturnResponse.ErrorResponse(CommonMessage.PromotionsNotFound, 404));
-
-                _unitOfWork.BeginTransaction();
-
-                _unitOfWork.PromotionRepository.Post(promotion);
-                _unitOfWork.Save();
-
-                int promotionId = promotion.PromotionId;
-                if (promotion.Type.Equals(PromotionType.coupons))
                 {
-                    Coupon coupon = new Coupon() { PromotionId = promotionId, CreatedAt = DateTime.Now };
-                    _unitOfWork.CouponRepository.Post(coupon);
+                    _unitOfWork.BeginTransaction();
+                    _unitOfWork.PromotionRepository.Post(promotion);
                     _unitOfWork.Save();
+                    int promotionId = promotion.PromotionId;
 
+                    if (promotion.Type.Equals(PromotionType.coupons))
+                    {
+                        if (promotion.StartAt == null || promotion.EndAt == null || promotion.UsageLimit == null || promotion.IsSharable == null) // coupon specific required params
+                            return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ErrorResponse(CommonMessage.InvalidData, 400));
+                        else
+                        {
+                            Coupon coupon = new Coupon() { PromotionId = promotionId, CreatedAt = DateTime.Now };
+                            _unitOfWork.CouponRepository.Post(coupon);
+                            _unitOfWork.Save();
+                        }
+                    }
+                    else if (promotion.Type.Equals(PromotionType.links)) // links specific required params
+                    {
+                        if (string.IsNullOrEmpty(promotion.Links.Web) || string.IsNullOrEmpty(promotion.Links.Android) || string.IsNullOrEmpty(promotion.Links.Ios))
+                        {
+                            return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ErrorResponse(CommonMessage.InvalidData, 400));
+                        }
+                    }
+                    else
+                    {
+                        return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ErrorResponse(CommonMessage.InvalidData, 400));
+
+                    }
+                    _unitOfWork.Commit();
+                    return StatusCode(StatusCodes.Status200OK, ReturnResponse.SuccessResponse(CommonMessage.PromotionsInsert, true));
                 }
-
-                _unitOfWork.Commit();
-                return StatusCode(StatusCodes.Status200OK, ReturnResponse.SuccessResponse(CommonMessage.PromotionsInsert, true));
             }
             catch (Exception ex)
             {
