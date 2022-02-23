@@ -104,7 +104,7 @@ namespace CouponService.Controllers
                 {
                     return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ErrorResponse(CommonMessage.InvalidData, 400));
                 }
-                Promotion promotion = _unitOfWork.PromotionRepository.Where(x => x.AdvertisementId == Obfuscation.Decode(advertisementId));
+                Promotion promotion = _unitOfWork.PromotionRepository.Where(x => x.Advertisement_Id == Obfuscation.Decode(advertisementId));
                 _unitOfWork.PromotionRepository.Delete(promotion.PromotionId);
                 _unitOfWork.Save();
                 return StatusCode(StatusCodes.Status200OK, ReturnResponse.SuccessResponse(CommonMessage.PromotionsDelete, false));
