@@ -3,6 +3,7 @@ using CouponService.Models;
 using CouponService.Models.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RoutesSecurity;
 using System;
 using static CouponService.Models.ResponseModel.Response;
 
@@ -25,6 +26,8 @@ namespace CouponService.Controllers
         {
             try
             {
+                promotion.Advertisement_Id = Obfuscation.Decode(promotion.AdvertisementId);
+                promotion.Institution_Id = Obfuscation.Decode(promotion.InstitutionId);
                 //required params common in both coupon and links
                 if (string.IsNullOrEmpty(promotion.Title) || string.IsNullOrEmpty(promotion.Subtitle) || string.IsNullOrEmpty(promotion.Code) || string.IsNullOrEmpty(promotion.Type.ToString()) || promotion.AdvertisementId == null || promotion.InstitutionId == null)
                 {
@@ -36,7 +39,6 @@ namespace CouponService.Controllers
                     _unitOfWork.PromotionRepository.Post(promotion);
                     _unitOfWork.Save();
                     int promotionId = promotion.PromotionId;
-
                     if (promotion.Type.Equals(PromotionType.coupons))
                     {
                         if (promotion.StartAt == null || promotion.EndAt == null || promotion.UsageLimit == null || promotion.IsSharable == null) // coupon specific required params
