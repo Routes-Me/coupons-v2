@@ -21,14 +21,15 @@ namespace CouponService.Repository
             dbSet = _context.Set<T>();
         }
 
+        public bool CheckExistance(int id)
+        {
+            return dbSet.Find(id) != null ? true : false;
+        }
+
         public void Delete(int id)
         {
             T entityToDelete = dbSet.Find(id);
             Delete(entityToDelete);
-        }
-        public T SingleOrDefault(Expression<Func<T, bool>> predicate)
-        {
-            return dbSet.SingleOrDefault(predicate);
         }
         public void Delete(T entityToDelete)
         {
@@ -83,11 +84,17 @@ namespace CouponService.Repository
             return query.FirstOrDefault();
         }
 
-        public T GetById(int id)
+        public List<T> GetReports(Expression<Func<T, bool>> filter = null, params Expression<Func<T, object>>[] includeProperties)
         {
-            return dbSet.Find(id);
-            //var res = dbSet.Find(id) as List<T>;
-            //return res.FirstOrDefault();
+            IQueryable<T> query = dbSet;
+            query = query.Where(filter);
+
+
+            foreach (Expression<Func<T, object>> includeProperty in includeProperties)
+            {
+                query = query.Include(includeProperty);
+            }
+            return query.ToList();
         }
 
         public void Post(T entity)
@@ -100,13 +107,20 @@ namespace CouponService.Repository
             dbSet.Attach(entity);
             _context.Entry(entity).State = EntityState.Modified;
         }
+
+        public void Remove(T entity)
+        {
+            _context.Entry(entity).State = EntityState.Deleted;
+        }
+
         public void RemoveRange(IEnumerable<T> entities)
         {
             dbSet.RemoveRange(entities);
         }
-        public void Remove(T entity)
+
+        public T SingleOrDefault(Expression<Func<T, bool>> predicate)
         {
-            _context.Entry(entity).State = EntityState.Deleted;
+            return dbSet.SingleOrDefault(predicate);
         }
     }
 }

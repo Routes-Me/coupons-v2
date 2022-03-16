@@ -18,15 +18,21 @@ namespace CouponService.Repository
             if (LinkRepository is null)
             {
                 LinkRepository = new LinkRepository(_context);
-            }if (CouponRepository is null)
+            }
+            if (CouponRepository is null)
             {
                 CouponRepository = new CouponRepository(_context);
+            }
+            if (ReportRepository is null)
+            {
+                ReportRepository = new ReportRepository(_context);
             }
         }
 
         public ILinkRepository LinkRepository { get; }
         public IPromotionRepository PromotionRepository { get; private set; }
         public ICouponRepository CouponRepository{ get; private set; }
+        public IReportRepository ReportRepository { get; private set; }
         public void BeginTransaction()
         {
             _context.Database.BeginTransaction();

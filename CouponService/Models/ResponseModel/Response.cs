@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.AspNetCore.Http;
 using System;
+using System.Collections.Generic;
 
 namespace CouponService.Models.ResponseModel
 {
@@ -45,5 +46,11 @@ namespace CouponService.Models.ResponseModel
                 return response;
             }
         }
+        public class ReportResponse<T>:Response
+        {
+            public List<T> Data { get; set; }
+        }
     }
+
+
 }

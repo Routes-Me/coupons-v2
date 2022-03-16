@@ -33,7 +33,7 @@ namespace CouponService
             services.AddInjections();
             services.AddCronJob();
             services.AddConfigurations(Configuration);
-            services.AddApiVersioning();
+            services.AddApiVersion();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
