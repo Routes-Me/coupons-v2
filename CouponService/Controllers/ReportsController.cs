@@ -1,11 +1,13 @@
 ﻿using CouponService.Abstraction;
 using CouponService.Models;
+using CouponService.Models.Dto;
 using CouponService.Models.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RoutesSecurity;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using static CouponService.Models.ResponseModel.Response;
 
 namespace CouponService.Controllers
@@ -26,22 +28,63 @@ namespace CouponService.Controllers
         [Route("advertisements/promotions/reports")]
         public ActionResult Reports(List<string> advertisementId)
         {
+            GetReportResponce responce = new GetReportResponce();
+            PromotionReportResponce promotionReportResponce = new PromotionReportResponce();
+            List<PromotionLinkDto> promotionLinkDtoList = new List<PromotionLinkDto>();
+            List<PromotionCouponDto> promotionCouponDtoList = new List<PromotionCouponDto>();
             try
             {
                 if (advertisementId.Count <= 0)
                     return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ErrorResponse(CommonMessage.InvalidData, 400));
                 else
                 {
-                    var reports = new List<Report>();
                     foreach (var id in advertisementId)
                     {
-                        
-                        reports = (List<Report>)_unitOfWork.ReportRepository.GetReports(x => x.AdvertisementId == Obfuscation.Decode(id), x => x.Coupon, x => x.Link);
+                        Promotion promotion = _unitOfWork.PromotionRepository.GetById(x => x.AdvertisementId == Convert.ToInt32(id), null, x => x.Coupons, x => x.Links);
+
+                        if (promotion == null)
+                            throw new Exception(CommonMessage.PromotionsNotFound);
+
+                        if(promotion.Type.ToString() == "coupons")
+                        {
+                            PromotionCouponDto promotionCouponDto = new PromotionCouponDto();
+                            promotionCouponDto.Title = promotion.Title;
+                            promotionCouponDto.Subtitle = promotion.Subtitle;
+                            promotionCouponDto.code = promotion.Code;
+                            promotionCouponDto.StartAt = promotion.StartAt;
+                            promotionCouponDto.EndAt = promotion.EndAt;
+                            promotionCouponDto.UsageLimit = promotion.UsageLimit;
+                            promotionCouponDto.isSharable = promotion.IsSharable;
+                            promotionCouponDto.AdvertisementId = Obfuscation.Encode(Convert.ToInt32(promotion.AdvertisementId));
+                            promotionCouponDto.InstitutionId = Obfuscation.Encode(Convert.ToInt32(promotion.InstitutionId));
+                            promotionCouponDto.type = promotion.Type.ToString();
+                            promotionCouponDtoList.Add(promotionCouponDto);
+                        }
+
+                        if(promotion.Type.ToString() == "links")
+                        {
+                            PromotionLinkDto promotionLinkDto = new PromotionLinkDto();
+                            promotionLinkDto.Title = promotion.Title;
+                            promotionLinkDto.Subtitle = promotion.Subtitle;
+                            promotionLinkDto.code = promotion.Code;
+                            promotionLinkDto.link.Web = promotion.Links.Web.ToString();
+                            promotionLinkDto.link.Ios = promotion.Links.Ios;
+                            promotionLinkDto.link.Android = promotion.Links.Android;
+                            promotionLinkDto.type = promotion.Type.ToString();
+                            promotionLinkDto.AdvertisementId = Obfuscation.Encode(Convert.ToInt32(promotion.AdvertisementId));
+                            promotionLinkDto.InstitutionId = Obfuscation.Encode(Convert.ToInt32(promotion.InstitutionId));
+                            promotionLinkDtoList.Add(promotionLinkDto);
+                        }
+
                     }
-                   
-                    return StatusCode(StatusCodes.Status200OK, reports);
-                    //return StatusCode(StatusCodes.Status200OK, ReturnResponse.SuccessResponse(CommonMessage.PromotionsRetrived, false));
                 }
+
+                promotionReportResponce.Links = promotionLinkDtoList;
+                promotionReportResponce.Coupons = promotionCouponDtoList;
+                responce.data = promotionReportResponce;
+
+                return StatusCode(StatusCodes.Status200OK, responce);
+
             }
             catch (Exception ex)
             {

@@ -1,4 +1,5 @@
 ﻿
+using CouponService.Models.Dto;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -50,7 +51,10 @@ namespace CouponService.Models.ResponseModel
         {
             public List<T> Data { get; set; }
         }
+
+        public class GetReportResponce
+        {
+            public PromotionReportResponce data { get; set; }
+        }
     }
-
-
 }
