@@ -35,8 +35,7 @@ namespace CouponService.Models.Dto
 
     public class PromotionReportResponce
     {
-        public List<PromotionLinkDto> Links { get; set; }
-        public List<PromotionCouponDto> Coupons { get; set; }
+        public dynamic data { get; set; }
     }
 
 }

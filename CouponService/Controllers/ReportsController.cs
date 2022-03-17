@@ -32,6 +32,7 @@ namespace CouponService.Controllers
             PromotionReportResponce promotionReportResponce = new PromotionReportResponce();
             List<PromotionLinkDto> promotionLinkDtoList = new List<PromotionLinkDto>();
             List<PromotionCouponDto> promotionCouponDtoList = new List<PromotionCouponDto>();
+            List<dynamic> list = new List<dynamic>();
             try
             {
                 if (advertisementId.Count <= 0)
@@ -58,7 +59,8 @@ namespace CouponService.Controllers
                             promotionCouponDto.AdvertisementId = Obfuscation.Encode(Convert.ToInt32(promotion.AdvertisementId));
                             promotionCouponDto.InstitutionId = Obfuscation.Encode(Convert.ToInt32(promotion.InstitutionId));
                             promotionCouponDto.type = promotion.Type.ToString();
-                            promotionCouponDtoList.Add(promotionCouponDto);
+                            //promotionCouponDtoList.Add(promotionCouponDto);
+                            list.Add(promotionCouponDto);
                         }
 
                         if(promotion.Type.ToString() == "links")
@@ -73,17 +75,19 @@ namespace CouponService.Controllers
                             promotionLinkDto.type = promotion.Type.ToString();
                             promotionLinkDto.AdvertisementId = Obfuscation.Encode(Convert.ToInt32(promotion.AdvertisementId));
                             promotionLinkDto.InstitutionId = Obfuscation.Encode(Convert.ToInt32(promotion.InstitutionId));
-                            promotionLinkDtoList.Add(promotionLinkDto);
+                            //promotionLinkDtoList.Add(promotionLinkDto);
+                            list.Add(promotionLinkDto);
                         }
 
                     }
                 }
 
-                promotionReportResponce.Links = promotionLinkDtoList;
-                promotionReportResponce.Coupons = promotionCouponDtoList;
-                responce.data = promotionReportResponce;
+                //promotionReportResponce.Links = promotionLinkDtoList;
+                //promotionReportResponce.Coupons = promotionCouponDtoList;
+                //responce.data = promotionReportResponce;
+                promotionReportResponce.data = list;
 
-                return StatusCode(StatusCodes.Status200OK, responce);
+                return StatusCode(StatusCodes.Status200OK, promotionReportResponce);
 
             }
             catch (Exception ex)
