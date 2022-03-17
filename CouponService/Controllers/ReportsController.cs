@@ -69,9 +69,9 @@ namespace CouponService.Controllers
                             promotionLinkDto.Title = promotion.Title;
                             promotionLinkDto.Subtitle = promotion.Subtitle;
                             promotionLinkDto.code = promotion.Code;
-                            promotionLinkDto.link.Web = promotion.Links.Web.ToString();
-                            promotionLinkDto.link.Ios = promotion.Links.Ios;
-                            promotionLinkDto.link.Android = promotion.Links.Android;
+                            promotionLinkDto.link.Web = promotion.Links.Web == null ? "" : promotion.Links.Web;
+                            promotionLinkDto.link.Ios = promotion.Links.Ios == null ? "" : promotion.Links.Ios;
+                            promotionLinkDto.link.Android = promotion.Links.Android == null ? "" : promotion.Links.Android;
                             promotionLinkDto.type = promotion.Type.ToString();
                             promotionLinkDto.AdvertisementId = Obfuscation.Encode(Convert.ToInt32(promotion.AdvertisementId));
                             promotionLinkDto.InstitutionId = Obfuscation.Encode(Convert.ToInt32(promotion.InstitutionId));
