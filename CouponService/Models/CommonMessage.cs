@@ -39,7 +39,6 @@
         public static string OfficerNotFound = "Officer not found.";
         public static string ExceptionMessage = "Something went wrong. Error Message - ";
         public static string InvalidData = "Pass valid data.";
-
         public static string LinksRetrived = "Links Retrived successfully.";
         public static string LinksNotFound = "Links not found.";
         public static string LinksDelete = "Links deleted successfully.";

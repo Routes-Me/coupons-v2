@@ -1,6 +1,7 @@
 ﻿
 using CouponService.Models.Dto;
 using Microsoft.AspNetCore.Http;
+using RoutesSecurity;
 using System;
 using System.Collections.Generic;
 
@@ -11,6 +12,7 @@ namespace CouponService.Models.ResponseModel
         public int Code { get; set; }
         public string Message { get; set; }
         public bool Status { get; set; }
+        public string Id { get; set; }
         public static class ReturnResponse
         {
             public static dynamic ErrorResponse(string message, int statusCode)
@@ -33,17 +35,19 @@ namespace CouponService.Models.ResponseModel
                 };
                 return response;
             }
-            public static dynamic SuccessResponse(string message, bool isCreated)
+            public static dynamic SuccessResponse(string message, bool isCreated, int InsertedId = 0)
             {
                 Response response = new Response
                 {
                     Status = true,
-                    Message = message
+                    Message = message,
+                    Id = Obfuscation.Encode(InsertedId)
                 };
                 if (isCreated)
                     response.Code = StatusCodes.Status201Created;
                 else
                     response.Code = StatusCodes.Status200OK;
+
                 return response;
             }
         }

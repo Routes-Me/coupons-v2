@@ -40,9 +40,13 @@ namespace CouponService.Repository
             dbSet.Remove(entityToDelete);
         }
 
-        public async Task<IEnumerable<T>> Find(Expression<Func<T, bool>> predicate)
+        public IEnumerable<T> Find(Expression<Func<T, bool>> predicate)
         {
-            return await dbSet.Where(predicate).ToListAsync();
+            return dbSet.Where(predicate).ToList();
+        }
+        public T Where(Expression<Func<T, bool>> predicate)
+        {
+            return dbSet.Where(predicate).FirstOrDefault();
         }
 
         public IEnumerable<T> Get(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, params Expression<Func<T, object>>[] includeProperties)
@@ -122,5 +126,6 @@ namespace CouponService.Repository
         {
             return dbSet.SingleOrDefault(predicate);
         }
+
     }
 }

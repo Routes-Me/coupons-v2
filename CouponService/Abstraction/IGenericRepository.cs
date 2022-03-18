@@ -21,5 +21,7 @@ namespace CouponService.Abstraction
         void RemoveRange(IEnumerable<T> entities);
         void Remove(T entity);
         bool CheckExistance(int id);
+        IEnumerable<T> Find(Expression<Func<T, bool>> predicate);
+        T Where(Expression<Func<T, bool>> predicate);
     }
 }

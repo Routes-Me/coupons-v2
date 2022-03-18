@@ -43,6 +43,7 @@ namespace AdvertisementService.Models
                 entity.HasOne(d => d.Promotion)
                     .WithMany(p => (System.Collections.Generic.IEnumerable<Coupon>)p.Coupons)
                     .HasForeignKey(d => d.PromotionId)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("coupons_ibfk_1");
             });
 
@@ -81,6 +82,7 @@ namespace AdvertisementService.Models
                 entity.HasOne(d => d.Promotion)
                     .WithMany(p => (System.Collections.Generic.IEnumerable<Link>)p.Links)
                     .HasForeignKey(d => d.PromotionId)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("links_ibfk_1");
             });
 
@@ -117,7 +119,7 @@ namespace AdvertisementService.Models
 
                 entity.Property(e => e.PromotionId).HasColumnName("promotion_id");
 
-                entity.Property(e => e.AdvertisementId).HasColumnName("advertisement_id");
+                entity.Property(e => e.Advertisement_Id).HasColumnName("advertisement_id");
 
                 entity.Property(e => e.Code)
                     .HasColumnName("code")
@@ -133,7 +135,7 @@ namespace AdvertisementService.Models
                     .HasColumnName("end_at")
                     .HasColumnType("datetime");
 
-                entity.Property(e => e.InstitutionId).HasColumnName("institution_id");
+                entity.Property(e => e.Institution_Id).HasColumnName("institution_id");
 
                 entity.Property(e => e.IsSharable).HasColumnName("is_sharable");
 
@@ -170,6 +172,7 @@ namespace AdvertisementService.Models
                     .HasColumnType("timestamp");
 
                 entity.Property(e => e.UsageLimit).HasColumnName("usage_limit");
+
             });
 
             //modelBuilder.Entity<PromotionsPlace>(entity =>
