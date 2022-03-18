@@ -15,9 +15,51 @@ namespace CouponService.Controllers
     public class PromotionsController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
+
         public PromotionsController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
+        }
+
+        [HttpDelete]
+        [Route("promotions/{id}")]
+        public IActionResult Delete(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ErrorResponse(CommonMessage.InvalidData, 400));
+                }
+                _unitOfWork.PromotionRepository.Delete(Obfuscation.Decode(id));
+                _unitOfWork.Save();
+                return StatusCode(StatusCodes.Status200OK, ReturnResponse.SuccessResponse(CommonMessage.PromotionsDelete, false));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ExceptionResponse(ex));
+            }
+        }
+
+        [HttpDelete]
+        [Route("promotions/advertisements/{advertisementId?}")]
+        public IActionResult DeletePromotionsFromAdvertisementID([FromQuery] string advertisementId)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(advertisementId))
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ErrorResponse(CommonMessage.InvalidData, 400));
+                }
+                Promotion promotion = _unitOfWork.PromotionRepository.Where(x => x.Advertisement_Id == Obfuscation.Decode(advertisementId));
+                _unitOfWork.PromotionRepository.Delete(promotion.PromotionId);
+                _unitOfWork.Save();
+                return StatusCode(StatusCodes.Status200OK, ReturnResponse.SuccessResponse(CommonMessage.PromotionsDelete, false));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ExceptionResponse(ex));
+            }
         }
 
         [HttpPost]
@@ -60,7 +102,6 @@ namespace CouponService.Controllers
                     else
                     {
                         return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ErrorResponse(CommonMessage.InvalidData, 400));
-
                     }
                     _unitOfWork.Commit();
                     return StatusCode(StatusCodes.Status200OK, ReturnResponse.SuccessResponse(CommonMessage.PromotionsInsert, true, promotion.PromotionId));
@@ -72,9 +113,10 @@ namespace CouponService.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ExceptionResponse(ex));
             }
         }
-        [HttpDelete]
+
+        [HttpPut]
         [Route("promotions/{id}")]
-        public IActionResult Delete(string id)
+        public ActionResult UpdatePromotion(string id, [FromBody] Promotion promotion)
         {
             try
             {
@@ -82,32 +124,43 @@ namespace CouponService.Controllers
                 {
                     return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ErrorResponse(CommonMessage.InvalidData, 400));
                 }
-                _unitOfWork.PromotionRepository.Delete(Obfuscation.Decode(id));
-                _unitOfWork.Save();
-                return StatusCode(StatusCodes.Status200OK, ReturnResponse.SuccessResponse(CommonMessage.PromotionsDelete, false));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ExceptionResponse(ex));
-            }
-        }
-
-
-        [HttpDelete]
-        [Route("promotions/advertisements/{advertisementId?}")]
-        public IActionResult DeletePromotionsFromAdvertisementID([FromQuery] string advertisementId)
-        {
-
-            try
-            {
-                if (string.IsNullOrEmpty(advertisementId))
+                var _promotion = _unitOfWork.PromotionRepository.GetById(x => x.PromotionId == Obfuscation.Decode(id), null, x => x.Coupons, x => x.Links);
+                if (_promotion is null)
                 {
-                    return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ErrorResponse(CommonMessage.InvalidData, 400));
+                    return StatusCode(StatusCodes.Status404NotFound, ReturnResponse.ErrorResponse(CommonMessage.PromotionsNotFound, 404));
                 }
-                Promotion promotion = _unitOfWork.PromotionRepository.Where(x => x.Advertisement_Id == Obfuscation.Decode(advertisementId));
-                _unitOfWork.PromotionRepository.Delete(promotion.PromotionId);
+                if (promotion.Type == PromotionType.coupons)
+                {
+                    _promotion.Advertisement_Id = Obfuscation.Decode(promotion.AdvertisementId);
+                    _promotion.Institution_Id = Obfuscation.Decode(promotion.InstitutionId);
+                    _promotion.Title = promotion.Title;
+                    _promotion.Subtitle = promotion.Subtitle;
+                    _promotion.StartAt = promotion.StartAt;
+                    _promotion.EndAt = promotion.EndAt;
+                    _promotion.Code = promotion.Code;
+                    _promotion.IsSharable = promotion.IsSharable;
+                    _promotion.UsageLimit = promotion.UsageLimit;
+                    _promotion.Type = promotion.Type;
+                    _promotion.UpdatedAt = DateTime.Now;
+                }
+                else if (promotion.Type == PromotionType.links)
+                {
+                    _promotion.Advertisement_Id = Obfuscation.Decode(promotion.AdvertisementId);
+                    _promotion.Institution_Id = Obfuscation.Decode(promotion.InstitutionId);
+                    _promotion.Title = promotion.Title;
+                    _promotion.Subtitle = promotion.Subtitle;
+                    _promotion.Code = promotion.Code;
+                    _promotion.Links.Web = promotion.Links.Web;
+                    _promotion.Links.Android = promotion.Links.Android;
+                    _promotion.Links.Ios = promotion.Links.Ios;
+                    _promotion.Type = promotion.Type;
+                    _promotion.UpdatedAt = DateTime.Now;
+
+                }
+                _unitOfWork.PromotionRepository.Put(_promotion);
                 _unitOfWork.Save();
-                return StatusCode(StatusCodes.Status200OK, ReturnResponse.SuccessResponse(CommonMessage.PromotionsDelete, false));
+
+                return StatusCode(StatusCodes.Status200OK, ReturnResponse.SuccessResponse(CommonMessage.PromotionsUpdate, false));
             }
             catch (Exception ex)
             {
