@@ -8,6 +8,7 @@ namespace CouponService.Models.Entities
     {
         public Promotion()
         {
+            Links = new Link();
         }
         public int PromotionId { get; set; }
         public string Title { get; set; }

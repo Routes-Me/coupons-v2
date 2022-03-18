@@ -1,7 +1,9 @@
 ﻿
+using CouponService.Models.Dto;
 using Microsoft.AspNetCore.Http;
 using RoutesSecurity;
 using System;
+using System.Collections.Generic;
 
 namespace CouponService.Models.ResponseModel
 {
@@ -48,6 +50,15 @@ namespace CouponService.Models.ResponseModel
 
                 return response;
             }
+        }
+        public class ReportResponse<T>:Response
+        {
+            public List<T> Data { get; set; }
+        }
+
+        public class GetReportResponce
+        {
+            public PromotionReportResponce data { get; set; }
         }
     }
 }
