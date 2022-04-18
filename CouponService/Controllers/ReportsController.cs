@@ -41,7 +41,7 @@ namespace CouponService.Controllers
                 {
                     foreach (var id in advertisementId)
                     {
-                        Promotion promotion = _unitOfWork.PromotionRepository.GetById(x => x.AdvertisementId == Convert.ToInt32(id), null, x => x.Coupons, x => x.Links);
+                        Promotion promotion = _unitOfWork.PromotionRepository.GetById(x => x.Advertisement_Id == Convert.ToInt32(id), null, x => x.Coupons, x => x.Links);
 
                         if (promotion == null)
                             throw new Exception(CommonMessage.PromotionsNotFound);
