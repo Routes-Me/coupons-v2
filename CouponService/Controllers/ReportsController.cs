@@ -44,9 +44,9 @@ namespace CouponService.Controllers
                         Promotion promotion = _unitOfWork.PromotionRepository.GetById(x => x.Advertisement_Id == Convert.ToInt32(id), null, x => x.Coupons, x => x.Links);
 
                         if (promotion == null)
-                            throw new Exception(CommonMessage.PromotionsNotFound);
+                            continue;
 
-                        if(promotion.Type.ToString() == "coupons")
+                        if (promotion.Type.ToString() == "coupons")
                         {
                             PromotionCouponDto promotionCouponDto = new PromotionCouponDto();
                             promotionCouponDto.Title = promotion.Title;
@@ -56,14 +56,14 @@ namespace CouponService.Controllers
                             promotionCouponDto.EndAt = promotion.EndAt;
                             promotionCouponDto.UsageLimit = promotion.UsageLimit;
                             promotionCouponDto.isSharable = promotion.IsSharable;
-                            promotionCouponDto.AdvertisementId = Obfuscation.Encode(Convert.ToInt32(promotion.AdvertisementId));
-                            promotionCouponDto.InstitutionId = Obfuscation.Encode(Convert.ToInt32(promotion.InstitutionId));
+                            promotionCouponDto.AdvertisementId = Obfuscation.Encode(Convert.ToInt32(promotion.Advertisement_Id));
+                            promotionCouponDto.InstitutionId = Obfuscation.Encode(Convert.ToInt32(promotion.Institution_Id));
                             promotionCouponDto.type = promotion.Type.ToString();
                             //promotionCouponDtoList.Add(promotionCouponDto);
                             list.Add(promotionCouponDto);
                         }
 
-                        if(promotion.Type.ToString() == "links")
+                        if (promotion.Type.ToString() == "links")
                         {
                             PromotionLinkDto promotionLinkDto = new PromotionLinkDto();
                             promotionLinkDto.Title = promotion.Title;
@@ -73,8 +73,8 @@ namespace CouponService.Controllers
                             promotionLinkDto.link.Ios = promotion.Links.Ios == null ? "" : promotion.Links.Ios;
                             promotionLinkDto.link.Android = promotion.Links.Android == null ? "" : promotion.Links.Android;
                             promotionLinkDto.type = promotion.Type.ToString();
-                            promotionLinkDto.AdvertisementId = Obfuscation.Encode(Convert.ToInt32(promotion.AdvertisementId));
-                            promotionLinkDto.InstitutionId = Obfuscation.Encode(Convert.ToInt32(promotion.InstitutionId));
+                            promotionLinkDto.AdvertisementId = Obfuscation.Encode(Convert.ToInt32(promotion.Advertisement_Id));
+                            promotionLinkDto.InstitutionId = Obfuscation.Encode(Convert.ToInt32(promotion.Institution_Id));
                             //promotionLinkDtoList.Add(promotionLinkDto);
                             list.Add(promotionLinkDto);
                         }
