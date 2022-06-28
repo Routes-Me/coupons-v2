@@ -1,13 +1,11 @@
 ﻿using CouponService.Abstraction;
 using CouponService.Models;
 using CouponService.Models.Dto;
-using CouponService.Models.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RoutesSecurity;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using static CouponService.Models.ResponseModel.Response;
 
 namespace CouponService.Controllers
@@ -28,11 +26,10 @@ namespace CouponService.Controllers
         [Route("advertisements/promotions/reports")]
         public ActionResult Reports(List<string> advertisementId)
         {
-            GetReportResponce responce = new GetReportResponce();
-            PromotionReportResponce promotionReportResponce = new PromotionReportResponce();
-            List<PromotionLinkDto> promotionLinkDtoList = new List<PromotionLinkDto>();
-            List<PromotionCouponDto> promotionCouponDtoList = new List<PromotionCouponDto>();
-            List<dynamic> list = new List<dynamic>();
+            var promotionReportResponse = new PromotionReportResponse();
+            var promotionLinkDtoList = new List<PromotionLinkDto>();
+            var promotionCouponDtoList = new List<PromotionCouponDto>();
+            var list = new List<dynamic>();
             try
             {
                 if (advertisementId.Count <= 0)
@@ -41,38 +38,38 @@ namespace CouponService.Controllers
                 {
                     foreach (var id in advertisementId)
                     {
-                        Promotion promotion = _unitOfWork.PromotionRepository.GetById(x => x.Advertisement_Id == Convert.ToInt32(id), null, x => x.Coupons, x => x.Links);
+                        var promotion = _unitOfWork.PromotionRepository.GetById(x => x.Advertisement_Id == Convert.ToInt32(id), null, x => x.Coupon, x => x.Link);
 
                         if (promotion == null)
                             throw new Exception(CommonMessage.PromotionsNotFound);
 
-                        if(promotion.Type.ToString() == "coupons")
+                        if (promotion.Type.ToString() == "coupons")
                         {
-                            PromotionCouponDto promotionCouponDto = new PromotionCouponDto();
+                            var promotionCouponDto = new PromotionCouponDto();
                             promotionCouponDto.Title = promotion.Title;
                             promotionCouponDto.Subtitle = promotion.Subtitle;
-                            promotionCouponDto.code = promotion.Code;
+                            promotionCouponDto.Code = promotion.Code;
                             promotionCouponDto.StartAt = promotion.StartAt;
                             promotionCouponDto.EndAt = promotion.EndAt;
                             promotionCouponDto.UsageLimit = promotion.UsageLimit;
-                            promotionCouponDto.isSharable = promotion.IsSharable;
+                            promotionCouponDto.IsSharable = promotion.IsSharable;
                             promotionCouponDto.AdvertisementId = Obfuscation.Encode(Convert.ToInt32(promotion.AdvertisementId));
                             promotionCouponDto.InstitutionId = Obfuscation.Encode(Convert.ToInt32(promotion.InstitutionId));
-                            promotionCouponDto.type = promotion.Type.ToString();
+                            promotionCouponDto.Type = promotion.Type.ToString();
                             //promotionCouponDtoList.Add(promotionCouponDto);
                             list.Add(promotionCouponDto);
                         }
 
-                        if(promotion.Type.ToString() == "links")
+                        if (promotion.Type.ToString() == "links")
                         {
-                            PromotionLinkDto promotionLinkDto = new PromotionLinkDto();
+                            var promotionLinkDto = new PromotionLinkDto();
                             promotionLinkDto.Title = promotion.Title;
                             promotionLinkDto.Subtitle = promotion.Subtitle;
-                            promotionLinkDto.code = promotion.Code;
-                            promotionLinkDto.link.Web = promotion.Links.Web == null ? "" : promotion.Links.Web;
-                            promotionLinkDto.link.Ios = promotion.Links.Ios == null ? "" : promotion.Links.Ios;
-                            promotionLinkDto.link.Android = promotion.Links.Android == null ? "" : promotion.Links.Android;
-                            promotionLinkDto.type = promotion.Type.ToString();
+                            promotionLinkDto.Code = promotion.Code;
+                            promotionLinkDto.Link.Web = promotion.Link.Web == null ? "" : promotion.Link.Web;
+                            promotionLinkDto.Link.Ios = promotion.Link.Ios == null ? "" : promotion.Link.Ios;
+                            promotionLinkDto.Link.Android = promotion.Link.Android == null ? "" : promotion.Link.Android;
+                            promotionLinkDto.Type = promotion.Type.ToString();
                             promotionLinkDto.AdvertisementId = Obfuscation.Encode(Convert.ToInt32(promotion.AdvertisementId));
                             promotionLinkDto.InstitutionId = Obfuscation.Encode(Convert.ToInt32(promotion.InstitutionId));
                             //promotionLinkDtoList.Add(promotionLinkDto);
@@ -82,18 +79,17 @@ namespace CouponService.Controllers
                     }
                 }
 
-                //promotionReportResponce.Links = promotionLinkDtoList;
-                //promotionReportResponce.Coupons = promotionCouponDtoList;
-                //responce.data = promotionReportResponce;
-                promotionReportResponce.data = list;
+                //promotionReportResponse.Links = promotionLinkDtoList;
+                //promotionReportResponse.Coupons = promotionCouponDtoList;
+                //responce.data = promotionReportResponse;
+                promotionReportResponse.Data = list;
 
-                return StatusCode(StatusCodes.Status200OK, promotionReportResponce);
+                return StatusCode(StatusCodes.Status200OK, promotionReportResponse);
 
             }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ExceptionResponse(ex));
-                throw;
             }
         }
     }

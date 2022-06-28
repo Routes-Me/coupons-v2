@@ -1,4 +1,4 @@
-﻿using AdvertisementService.Models;
+﻿using CouponService.Models;
 using CouponService.Abstraction;
 using CouponService.Models.Entities;
 

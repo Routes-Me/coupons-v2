@@ -1,5 +1,5 @@
-﻿using AdvertisementService.Models;
-using CouponService.Abstraction;
+﻿using CouponService.Abstraction;
+using CouponService.Models;
 using CouponService.Models.Entities;
 
 namespace CouponService.Repository

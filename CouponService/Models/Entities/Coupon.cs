@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CouponService.Models.Entities
 {
-    public partial class Coupon
+    public class Coupon
     {
         public Coupon()
         {

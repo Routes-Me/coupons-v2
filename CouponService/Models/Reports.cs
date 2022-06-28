@@ -1,9 +1,8 @@
-﻿using CouponService.Models.Entities;
-using System;
+﻿using System;
 
 namespace CouponService.Models
 {
-    public partial class Report
+    public partial class Reports
     {
         public string PromotionId { get; set; }
         public string Title { get; set; }

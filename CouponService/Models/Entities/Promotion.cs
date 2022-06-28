@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CouponService.Models.Entities
 {
-    public partial class Promotion
+    public class Promotion
     {
         public Promotion()
         {
-            Links = new Link();
+            Link = new Link();
         }
         public int PromotionId { get; set; }
         public string Title { get; set; }
@@ -28,13 +27,13 @@ namespace CouponService.Models.Entities
         public string LogoUrl { get; set; }
         public PromotionType? Type { get; set; }
         public string Code { get; set; }
-        public virtual Coupon Coupons { get; set; }
-        public virtual Link Links { get; set; }
+        public virtual Coupon Coupon { get; set; }
+        public virtual Link Link { get; set; }
     }
     public enum PromotionType
     {
-        links,
-        coupons
+        Links,
+        Coupons
     }
 
 }

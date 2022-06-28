@@ -13,15 +13,15 @@ namespace CouponService.Abstraction
                             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
                     params Expression<Func<T, object>>[] includeProperties);
 
-        List<T> GetReports(Expression<Func<T, bool>> filter = null, params Expression<Func<T, object>>[] includeProperties);
+        //List<T> GetReports(Expression<Func<T, bool>> filter = null, params Expression<Func<T, object>>[] includeProperties);
         T GetById(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, params Expression<Func<T, object>>[] includeProperties);
-        T SingleOrDefault(Expression<Func<T, bool>> predicate);
+        //T SingleOrDefault(Expression<Func<T, bool>> predicate);
         void Post(T entity);
         void Put(T entity);
-        void RemoveRange(IEnumerable<T> entities);
+        //void RemoveRange(IEnumerable<T> entities);
         void Remove(T entity);
-        bool CheckExistance(int id);
-        IEnumerable<T> Find(Expression<Func<T, bool>> predicate);
+        //bool CheckExistance(int id);
+        //IEnumerable<T> Find(Expression<Func<T, bool>> predicate);
         T Where(Expression<Func<T, bool>> predicate);
     }
 }
