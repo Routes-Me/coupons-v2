@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using RoutesSecurity;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using static CouponService.Models.ResponseModel.Response;
 
 namespace CouponService.Controllers
@@ -23,16 +22,14 @@ namespace CouponService.Controllers
             _unitOfWork = unitOfWork;
         }
 
-
-        [HttpGet]
+        [HttpPost]
         [Route("advertisements/promotions/reports")]
         public ActionResult Reports(List<string> advertisementId)
         {
-            GetReportResponce responce = new GetReportResponce();
-            PromotionReportResponce promotionReportResponce = new PromotionReportResponce();
-            List<PromotionLinkDto> promotionLinkDtoList = new List<PromotionLinkDto>();
-            List<PromotionCouponDto> promotionCouponDtoList = new List<PromotionCouponDto>();
-            List<dynamic> list = new List<dynamic>();
+            var promotionReportResponse = new PromotionReportResponse();
+            var promotionLinkDtoList = new List<PromotionLinkDto>();
+            var promotionCouponDtoList = new List<PromotionCouponDto>();
+            var list = new List<dynamic>();
             try
             {
                 if (advertisementId.Count <= 0)
@@ -41,59 +38,54 @@ namespace CouponService.Controllers
                 {
                     foreach (var id in advertisementId)
                     {
-                        Promotion promotion = _unitOfWork.PromotionRepository.GetById(x => x.Advertisement_Id == Convert.ToInt32(id), null, x => x.Coupons, x => x.Links);
-
-                        if (promotion == null)
+                        var promotions = _unitOfWork.PromotionRepository.Get(null, x => x.Advertisement_Id == Convert.ToInt32(id), null, x => x.Coupon, x => x.Link);
+                        if (promotions.Count == 0)
                             continue;
 
-                        if (promotion.Type.ToString() == "coupons")
+                        foreach (var promotion in promotions)
                         {
-                            PromotionCouponDto promotionCouponDto = new PromotionCouponDto();
-                            promotionCouponDto.Title = promotion.Title;
-                            promotionCouponDto.Subtitle = promotion.Subtitle;
-                            promotionCouponDto.code = promotion.Code;
-                            promotionCouponDto.StartAt = promotion.StartAt;
-                            promotionCouponDto.EndAt = promotion.EndAt;
-                            promotionCouponDto.UsageLimit = promotion.UsageLimit;
-                            promotionCouponDto.isSharable = promotion.IsSharable;
-                            promotionCouponDto.AdvertisementId = Obfuscation.Encode(Convert.ToInt32(promotion.Advertisement_Id));
-                            promotionCouponDto.InstitutionId = Obfuscation.Encode(Convert.ToInt32(promotion.Institution_Id));
-                            promotionCouponDto.type = promotion.Type.ToString();
-                            //promotionCouponDtoList.Add(promotionCouponDto);
-                            list.Add(promotionCouponDto);
-                        }
+                            if (promotion.Type == PromotionType.Coupons)
+                            {
+                                var promotionCouponDto = new PromotionCouponDto();
+                                promotionCouponDto.Title = promotion.Title;
+                                promotionCouponDto.Subtitle = promotion.Subtitle;
+                                promotionCouponDto.Code = promotion.Code;
+                                promotionCouponDto.CreatedAt = promotion.CreatedAt.ToString();
+                                
+                                promotionCouponDto.UsageLimit = promotion.UsageLimit;
+                                promotionCouponDto.IsSharable = promotion.IsSharable;
+                                promotionCouponDto.AdvertisementId = Obfuscation.Encode(Convert.ToInt32(promotion.Advertisement_Id));
+                                promotionCouponDto.InstitutionId = Obfuscation.Encode(Convert.ToInt32(promotion.Institution_Id));
+                                promotionCouponDto.PromotionId = Obfuscation.Encode(Convert.ToInt32(promotion.PromotionId));
+                                promotionCouponDto.Type = promotion.Type.ToString();
+                                list.Add(promotionCouponDto);
+                            }
 
-                        if (promotion.Type.ToString() == "links")
-                        {
-                            PromotionLinkDto promotionLinkDto = new PromotionLinkDto();
-                            promotionLinkDto.Title = promotion.Title;
-                            promotionLinkDto.Subtitle = promotion.Subtitle;
-                            promotionLinkDto.code = promotion.Code;
-                            promotionLinkDto.link.Web = promotion.Links.Web == null ? "" : promotion.Links.Web;
-                            promotionLinkDto.link.Ios = promotion.Links.Ios == null ? "" : promotion.Links.Ios;
-                            promotionLinkDto.link.Android = promotion.Links.Android == null ? "" : promotion.Links.Android;
-                            promotionLinkDto.type = promotion.Type.ToString();
-                            promotionLinkDto.AdvertisementId = Obfuscation.Encode(Convert.ToInt32(promotion.Advertisement_Id));
-                            promotionLinkDto.InstitutionId = Obfuscation.Encode(Convert.ToInt32(promotion.Institution_Id));
-                            //promotionLinkDtoList.Add(promotionLinkDto);
-                            list.Add(promotionLinkDto);
-                        }
+                            if (promotion.Type == PromotionType.Links)
+                            {
+                                var promotionLinkDto = new PromotionLinkDto();
+                                promotionLinkDto.Title = promotion.Title;
+                                promotionLinkDto.Subtitle = promotion.Subtitle;
+                                promotionLinkDto.Code = promotion.Code;
+                                promotionLinkDto.Link.Web = promotion.Link.Web;
+                                promotionLinkDto.Link.Ios = promotion.Link.Ios;
+                                promotionLinkDto.Link.Android =  promotion.Link.Android;
+                                promotionLinkDto.Type = promotion.Type.ToString();
+                                promotionLinkDto.AdvertisementId = Obfuscation.Encode(Convert.ToInt32(promotion.Advertisement_Id));
+                                promotionLinkDto.InstitutionId = Obfuscation.Encode(Convert.ToInt32(promotion.Institution_Id));
+                                promotionLinkDto.PromotionId = Obfuscation.Encode(Convert.ToInt32(promotion.PromotionId));
 
+                                list.Add(promotionLinkDto);
+                            }
+                        }
                     }
                 }
-
-                //promotionReportResponce.Links = promotionLinkDtoList;
-                //promotionReportResponce.Coupons = promotionCouponDtoList;
-                //responce.data = promotionReportResponce;
-                promotionReportResponce.data = list;
-
-                return StatusCode(StatusCodes.Status200OK, promotionReportResponce);
-
+                promotionReportResponse.Data = list;
+                return StatusCode(StatusCodes.Status200OK, promotionReportResponse);
             }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ExceptionResponse(ex));
-                throw;
             }
         }
     }

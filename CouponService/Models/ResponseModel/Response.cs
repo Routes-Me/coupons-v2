@@ -1,6 +1,8 @@
 ﻿
 using CouponService.Models.Dto;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RoutesSecurity;
 using System;
 using System.Collections.Generic;
@@ -17,7 +19,7 @@ namespace CouponService.Models.ResponseModel
         {
             public static dynamic ErrorResponse(string message, int statusCode)
             {
-                Response response = new Response
+                var response = new Response
                 {
                     Status = false,
                     Message = message,
@@ -27,7 +29,7 @@ namespace CouponService.Models.ResponseModel
             }
             public static dynamic ExceptionResponse(Exception ex)
             {
-                Response response = new Response
+                var response = new Response
                 {
                     Status = false,
                     Message = CommonMessage.ExceptionMessage + ex.Message + "******** Stack Trace ***********" + ex.StackTrace,
@@ -37,7 +39,7 @@ namespace CouponService.Models.ResponseModel
             }
             public static dynamic SuccessResponse(string message, bool isCreated, int InsertedId = 0)
             {
-                Response response = new Response
+                var response = new Response
                 {
                     Status = true,
                     Message = message,
@@ -51,14 +53,32 @@ namespace CouponService.Models.ResponseModel
                 return response;
             }
         }
-        public class ReportResponse<T>:Response
+        public class ReportResponse<T> : Response
         {
             public List<T> Data { get; set; }
         }
 
         public class GetReportResponce
         {
-            public PromotionReportResponce data { get; set; }
+            public PromotionReportResponse data { get; set; }
+        }
+
+        public class GetResponse<T> : Response where T : class
+        {
+            public Pagination Pagination { get; set; }
+            public List<T> Data { get; set; }
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public JObject Included { get; set; }
+        }
+        public class GetResponseById<T> : Response where T : class
+        {
+            public T Data { get; set; }
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public JObject Included { get; set; }
+        }
+        public class GetResponseApi<T> : Response where T : class
+        {
+            public List<T> Data { get; set; }
         }
     }
 }

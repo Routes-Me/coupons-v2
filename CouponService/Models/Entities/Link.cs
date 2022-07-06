@@ -1,6 +1,6 @@
 ﻿namespace CouponService.Models.Entities
 {
-    public partial class Link
+    public class Link
     {
         public int LinkId { get; set; }
 

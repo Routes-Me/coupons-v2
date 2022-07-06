@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using System;
 
 namespace CouponService.Controllers
 {
@@ -8,19 +7,17 @@ namespace CouponService.Controllers
     [ApiController]
     public class HomeController : ControllerBase
     {
-        [Obsolete]
-        public readonly IHostingEnvironment _hostingEnv;
+        public readonly IWebHostEnvironment HostingEnv;
 
-        [Obsolete]
-        public HomeController(IHostingEnvironment hostingEnv)
+
+        public HomeController(IWebHostEnvironment hostingEnv)
         {
-            _hostingEnv = hostingEnv;
+            HostingEnv = hostingEnv;
         }
         [HttpGet]
-        [Obsolete]
         public string Get()
         {
-            return "Coupon service started successfully. Environment - " + _hostingEnv.EnvironmentName + "";
+            return "Coupon service started successfully. Environment - " + HostingEnv.EnvironmentName + "";
         }
     }
 }
