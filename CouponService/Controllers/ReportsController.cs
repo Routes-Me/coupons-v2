@@ -22,7 +22,6 @@ namespace CouponService.Controllers
             _unitOfWork = unitOfWork;
         }
 
-
         [HttpPost]
         [Route("advertisements/promotions/reports")]
         public ActionResult Reports(List<string> advertisementId)
@@ -40,7 +39,6 @@ namespace CouponService.Controllers
                     foreach (var id in advertisementId)
                     {
                         var promotions = _unitOfWork.PromotionRepository.Get(null, x => x.Advertisement_Id == Convert.ToInt32(id), null, x => x.Coupon, x => x.Link);
-
                         if (promotions.Count == 0)
                             continue;
 
@@ -80,13 +78,10 @@ namespace CouponService.Controllers
                                 list.Add(promotionLinkDto);
                             }
                         }
-
                     }
                 }
                 promotionReportResponse.Data = list;
-
                 return StatusCode(StatusCodes.Status200OK, promotionReportResponse);
-
             }
             catch (Exception ex)
             {
