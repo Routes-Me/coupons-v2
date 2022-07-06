@@ -62,9 +62,12 @@ namespace CouponService.Controllers
                 {
                     return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ErrorResponse(CommonMessage.InvalidData, 400));
                 }
-                var promotion = _unitOfWork.PromotionRepository.Where(x => x.Advertisement_Id == Obfuscation.Decode(advertisementId));
-                _unitOfWork.PromotionRepository.Remove(promotion);
-                _unitOfWork.Save();
+                var promotions = _unitOfWork.PromotionRepository.Get(null, x => x.Advertisement_Id == Obfuscation.Decode(advertisementId), null);
+                foreach(var promotion in promotions)
+                {
+                    _unitOfWork.PromotionRepository.Remove(promotion);
+                    _unitOfWork.Save();
+                }
                 return StatusCode(StatusCodes.Status200OK, ReturnResponse.SuccessResponse(CommonMessage.PromotionsDelete, false));
             }
             catch (Exception ex)
@@ -74,7 +77,6 @@ namespace CouponService.Controllers
         }
 
         [HttpPost]
-        [Route("")]
         public ActionResult Post(Promotion promotion)
         {
             try
@@ -91,14 +93,14 @@ namespace CouponService.Controllers
                     _unitOfWork.BeginTransaction();
                     _unitOfWork.PromotionRepository.Post(promotion);
                     _unitOfWork.Save();
-                    var promotionId = promotion.PromotionId;
+                    
                     if (promotion.Type.Equals(PromotionType.Coupons))
                     {
                         if (promotion.StartAt == null || promotion.EndAt == null || promotion.UsageLimit == null || promotion.IsSharable == null) // coupon specific required params
                             return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ErrorResponse(CommonMessage.InvalidData, 400));
                         else
                         {
-                            var coupon = new Coupon() { PromotionId = promotionId, CreatedAt = DateTime.Now };
+                            var coupon = new Coupon() { PromotionId = promotion.PromotionId, CreatedAt = DateTime.Now };
                             _unitOfWork.CouponRepository.Post(coupon);
                             _unitOfWork.Save();
                         }
@@ -108,6 +110,19 @@ namespace CouponService.Controllers
                         if (string.IsNullOrEmpty(value: promotion.Link.Web) || string.IsNullOrEmpty(promotion.Link.Android) || string.IsNullOrEmpty(promotion.Link.Ios))
                         {
                             return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ErrorResponse(CommonMessage.InvalidData, 400));
+                        }
+                        else
+                        {
+                            var link = new Link
+                            {
+                                Web = promotion.Link.Web,
+                                Ios = promotion.Link.Android,
+                                Android = promotion.Link.Ios,
+                                PromotionId = promotion.PromotionId
+
+                            };
+                            _unitOfWork.LinkRepository.Post(link);
+                            _unitOfWork.Save();
                         }
                     }
                     else
@@ -243,7 +258,6 @@ namespace CouponService.Controllers
         }
 
         [HttpGet]
-        [Route("")]
         public IActionResult Get(string include, [FromQuery] Pagination pageInfo)
         {
             var response = new GetResponse<Promotion>();
@@ -251,10 +265,8 @@ namespace CouponService.Controllers
             try
             {
                 var promotionReadDto = new List<PromotionReadDto>();
-                var promotions = _unitOfWork.PromotionRepository.Get().ToList();
-                pageInfo.Total = promotions.Count;
-                promotions = promotions.Skip((pageInfo.Offset - 1) * pageInfo.Limit).Take(pageInfo.Limit).ToList();
-                //promotionReadDto = _mapper.Map<List<PromotionReadDto>>(promotions);
+                var promotions = _unitOfWork.PromotionRepository.Get(pageInfo, null, x => x.OrderBy(x => x.PromotionId), x => x.Coupon, x => x.Link).ToList();
+
 
                 foreach (var promotion in promotionReadDto)
                 {
@@ -301,5 +313,6 @@ namespace CouponService.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ExceptionResponse(e));
             }
         }
+
     }
 }

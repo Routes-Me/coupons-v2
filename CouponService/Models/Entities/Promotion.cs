@@ -5,10 +5,6 @@ namespace CouponService.Models.Entities
 {
     public class Promotion
     {
-        public Promotion()
-        {
-            Link = new Link();
-        }
         public int PromotionId { get; set; }
         public string Title { get; set; }
         public string Subtitle { get; set; }

@@ -20,10 +20,6 @@ namespace CouponService.Repository
             dbSet = _context.Set<T>();
         }
 
-        //public bool CheckExistance(int id)
-        //{
-        //    return dbSet.Find(id) != null ? true : false;
-        //}
 
         public void Delete(int id)
         {
@@ -38,40 +34,39 @@ namespace CouponService.Repository
             }
             dbSet.Remove(entityToDelete);
         }
-
-        //public IEnumerable<T> Find(Expression<Func<T, bool>> predicate)
-        //{
-        //    return dbSet.Where(predicate).ToList();
-        //}
         public T Where(Expression<Func<T, bool>> predicate)
         {
             return dbSet.Where(predicate).FirstOrDefault();
         }
 
-        public IEnumerable<T> Get(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, params Expression<Func<T, object>>[] includeProperties)
+        public List<T> Get(Pagination pagination, Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, params Expression<Func<T, object>>[] includeProperties)
         {
             IQueryable<T> query = dbSet;
+            if (pagination != null)
+            {
+                query = query.Skip((pagination.Offset - 1) * pagination.Limit).Take(pagination.Limit);
+                pagination.Total = query.Count();
+            }
 
             if (filter != null)
             {
                 query = query.Where(filter);
             }
-
-            foreach (var includeProperty in includeProperties)
+            if (includeProperties!= null)
             {
-                query = query.Include(includeProperty);
+                foreach (Expression<Func<T, object>> includeProperty in includeProperties)
+                {
+                    query = query.Include(includeProperty);
+                }
             }
+
 
             if (orderBy != null)
             {
-                return orderBy(query).ToList();
+                query = orderBy(query);
             }
-            else
-            {
-                return query.ToList();
-            }
+            return query.ToList();
         }
-
         public T GetById(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, params Expression<Func<T, object>>[] includeProperties)
         {
             IQueryable<T> query = dbSet;
@@ -87,18 +82,6 @@ namespace CouponService.Repository
             return query.FirstOrDefault();
         }
 
-        //public List<T> GetReports(Expression<Func<T, bool>> filter = null, params Expression<Func<T, object>>[] includeProperties)
-        //{
-        //    IQueryable<T> query = dbSet;
-        //    query = query.Where(filter);
-
-
-        //    foreach (var includeProperty in includeProperties)
-        //    {
-        //        query = query.Include(includeProperty);
-        //    }
-        //    return query.ToList();
-        //}
 
         public void Post(T entity)
         {
@@ -115,16 +98,5 @@ namespace CouponService.Repository
         {
             _context.Entry(entity).State = EntityState.Deleted;
         }
-
-        //public void RemoveRange(IEnumerable<T> entities)
-        //{
-        //    dbSet.RemoveRange(entities);
-        //}
-
-        //public T SingleOrDefault(Expression<Func<T, bool>> predicate)
-        //{
-        //    return dbSet.SingleOrDefault(predicate);
-        //}
-
     }
 }
