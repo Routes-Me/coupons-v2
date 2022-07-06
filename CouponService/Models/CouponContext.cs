@@ -1,7 +1,7 @@
 ﻿using CouponService.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace AdvertisementService.Models
+namespace CouponService.Models
 {
     public partial class CouponContext : DbContext
     {
@@ -27,8 +27,6 @@ namespace AdvertisementService.Models
 
                 entity.ToTable("coupons");
 
-                entity.HasIndex(e => e.PromotionId)
-                    .HasName("promotion_id");
 
                 entity.Property(e => e.CouponId).HasColumnName("coupon_id");
 
@@ -36,15 +34,18 @@ namespace AdvertisementService.Models
                     .HasColumnName("created_at")
                     .HasColumnType("timestamp");
 
+
+                entity.HasIndex(e => e.PromotionId).HasName("promotion_id");
+
                 entity.Property(e => e.PromotionId).HasColumnName("promotion_id");
 
                 entity.Property(e => e.UserId).HasColumnName("user_id");
 
-                entity.HasOne(d => d.Promotion)
-                    .WithMany(p => (System.Collections.Generic.IEnumerable<Coupon>)p.Coupons)
-                    .HasForeignKey(d => d.PromotionId)
-                    .OnDelete(DeleteBehavior.Cascade)
+               entity.HasOne(e=>e.Promotion)
+                .WithOne(e=>e.Coupon)
+                 .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("coupons_ibfk_1");
+
             });
 
             modelBuilder.Entity<Link>(entity =>
@@ -80,8 +81,7 @@ namespace AdvertisementService.Models
                     .HasCollation("latin1_swedish_ci");
 
                 entity.HasOne(d => d.Promotion)
-                    .WithMany(p => (System.Collections.Generic.IEnumerable<Link>)p.Links)
-                    .HasForeignKey(d => d.PromotionId)
+                    .WithOne(p => p.Link)
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("links_ibfk_1");
             });
@@ -119,7 +119,7 @@ namespace AdvertisementService.Models
 
                 entity.Property(e => e.PromotionId).HasColumnName("promotion_id");
 
-                entity.Property(e => e.AdvertisementId).HasColumnName("advertisement_id");
+                entity.Property(e => e.Advertisement_Id).HasColumnName("advertisement_id");
 
                 entity.Property(e => e.Code)
                     .HasColumnName("code")
@@ -135,7 +135,7 @@ namespace AdvertisementService.Models
                     .HasColumnName("end_at")
                     .HasColumnType("datetime");
 
-                entity.Property(e => e.InstitutionId).HasColumnName("institution_id");
+                entity.Property(e => e.Institution_Id).HasColumnName("institution_id");
 
                 entity.Property(e => e.IsSharable).HasColumnName("is_sharable");
 

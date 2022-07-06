@@ -1,18 +1,17 @@
-﻿using AdvertisementService.Models;
-using CouponService.Abstraction;
+﻿using CouponService.Abstraction;
+using CouponService.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 
 namespace CouponService.Repository
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
-        internal CouponContext _context;
+        internal readonly CouponContext _context;
         internal DbSet<T> dbSet;
 
         public GenericRepository(CouponContext context)
@@ -21,14 +20,11 @@ namespace CouponService.Repository
             dbSet = _context.Set<T>();
         }
 
+
         public void Delete(int id)
         {
-            T entityToDelete = dbSet.Find(id);
+            var entityToDelete = dbSet.Find(id);
             Delete(entityToDelete);
-        }
-        public T SingleOrDefault(Expression<Func<T, bool>> predicate)
-        {
-            return dbSet.SingleOrDefault(predicate);
         }
         public void Delete(T entityToDelete)
         {
@@ -38,36 +34,39 @@ namespace CouponService.Repository
             }
             dbSet.Remove(entityToDelete);
         }
-
-        public async Task<IEnumerable<T>> Find(Expression<Func<T, bool>> predicate)
+        public T Where(Expression<Func<T, bool>> predicate)
         {
-            return await dbSet.Where(predicate).ToListAsync();
+            return dbSet.Where(predicate).FirstOrDefault();
         }
 
-        public IEnumerable<T> Get(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, params Expression<Func<T, object>>[] includeProperties)
+        public List<T> Get(Pagination pagination, Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, params Expression<Func<T, object>>[] includeProperties)
         {
             IQueryable<T> query = dbSet;
+            if (pagination != null)
+            {
+                query = query.Skip((pagination.Offset - 1) * pagination.Limit).Take(pagination.Limit);
+                pagination.Total = query.Count();
+            }
 
             if (filter != null)
             {
                 query = query.Where(filter);
             }
-
-            foreach (Expression<Func<T, object>> includeProperty in includeProperties)
+            if (includeProperties!= null)
             {
-                query = query.Include(includeProperty);
+                foreach (Expression<Func<T, object>> includeProperty in includeProperties)
+                {
+                    query = query.Include(includeProperty);
+                }
             }
+
 
             if (orderBy != null)
             {
-                return orderBy(query).ToList();
+                query = orderBy(query);
             }
-            else
-            {
-                return query.ToList();
-            }
+            return query.ToList();
         }
-
         public T GetById(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, params Expression<Func<T, object>>[] includeProperties)
         {
             IQueryable<T> query = dbSet;
@@ -83,12 +82,6 @@ namespace CouponService.Repository
             return query.FirstOrDefault();
         }
 
-        public T GetById(int id)
-        {
-            return dbSet.Find(id);
-            //var res = dbSet.Find(id) as List<T>;
-            //return res.FirstOrDefault();
-        }
 
         public void Post(T entity)
         {
@@ -100,10 +93,7 @@ namespace CouponService.Repository
             dbSet.Attach(entity);
             _context.Entry(entity).State = EntityState.Modified;
         }
-        public void RemoveRange(IEnumerable<T> entities)
-        {
-            dbSet.RemoveRange(entities);
-        }
+
         public void Remove(T entity)
         {
             _context.Entry(entity).State = EntityState.Deleted;

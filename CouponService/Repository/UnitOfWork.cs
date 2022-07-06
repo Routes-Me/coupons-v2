@@ -1,5 +1,5 @@
-﻿using AdvertisementService.Models;
-using CouponService.Abstraction;
+﻿using CouponService.Abstraction;
+using CouponService.Models;
 using System;
 
 namespace CouponService.Repository
@@ -7,7 +7,11 @@ namespace CouponService.Repository
     public class UnitOfWork : IUnitOfWork, IDisposable
     {
         private readonly CouponContext _context;
-        private bool disposed = false;
+        public ILinkRepository LinkRepository { get; }
+        public IPromotionRepository PromotionRepository { get; }
+        public ICouponRepository CouponRepository { get; }
+        public IReportRepository ReportRepository { get; }
+        private bool _disposed = false;
         public UnitOfWork(CouponContext context)
         {
             _context = context;
@@ -18,15 +22,18 @@ namespace CouponService.Repository
             if (LinkRepository is null)
             {
                 LinkRepository = new LinkRepository(_context);
-            }if (CouponRepository is null)
+            }
+            if (CouponRepository is null)
             {
                 CouponRepository = new CouponRepository(_context);
             }
+            if (ReportRepository is null)
+            {
+                ReportRepository = new ReportRepository(_context);
+            }
         }
 
-        public ILinkRepository LinkRepository { get; }
-        public IPromotionRepository PromotionRepository { get; private set; }
-        public ICouponRepository CouponRepository{ get; private set; }
+
         public void BeginTransaction()
         {
             _context.Database.BeginTransaction();
@@ -55,14 +62,14 @@ namespace CouponService.Repository
         }
         protected virtual void Dispose(bool disposing)
         {
-            if (!this.disposed)
+            if (!_disposed)
             {
                 if (disposing)
                 {
                     _context.Dispose();
                 }
             }
-            this.disposed = true;
+            this._disposed = true;
         }
     }
 }
