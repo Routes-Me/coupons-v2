@@ -33,7 +33,7 @@ namespace CouponService.Controllers
             try
             {
                 if (advertisementId.Count <= 0)
-                    return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ErrorResponse(CommonMessage.InvalidData, 400));
+                    return StatusCode(StatusCodes.Status404NotFound);
                 else
                 {
                     foreach (var id in advertisementId)
@@ -51,7 +51,7 @@ namespace CouponService.Controllers
                                 promotionCouponDto.Subtitle = promotion.Subtitle;
                                 promotionCouponDto.Code = promotion.Code;
                                 promotionCouponDto.CreatedAt = promotion.CreatedAt.ToString();
-                                
+
                                 promotionCouponDto.UsageLimit = promotion.UsageLimit;
                                 promotionCouponDto.IsSharable = promotion.IsSharable;
                                 promotionCouponDto.AdvertisementId = Obfuscation.Encode(Convert.ToInt32(promotion.Advertisement_Id));
