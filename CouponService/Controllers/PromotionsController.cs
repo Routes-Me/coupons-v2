@@ -63,7 +63,7 @@ namespace CouponService.Controllers
                     return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ErrorResponse(CommonMessage.InvalidData, 400));
                 }
                 var promotions = _unitOfWork.PromotionRepository.Get(null, x => x.Advertisement_Id == Obfuscation.Decode(advertisementId), null);
-                foreach(var promotion in promotions)
+                foreach (var promotion in promotions)
                 {
                     _unitOfWork.PromotionRepository.Remove(promotion);
                     _unitOfWork.Save();
@@ -93,7 +93,7 @@ namespace CouponService.Controllers
                     _unitOfWork.BeginTransaction();
                     _unitOfWork.PromotionRepository.Post(promotion);
                     _unitOfWork.Save();
-                    
+
                     if (promotion.Type.Equals(PromotionType.Coupons))
                     {
                         if (promotion.StartAt == null || promotion.EndAt == null || promotion.UsageLimit == null || promotion.IsSharable == null) // coupon specific required params
@@ -193,10 +193,6 @@ namespace CouponService.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ExceptionResponse(ex));
             }
         }
-
-
-
-
 
         [HttpGet]
         [Route("{promotionId?}")]
@@ -314,5 +310,56 @@ namespace CouponService.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("contents")]
+        public IActionResult GetPromotions(List<int> ContentId)
+        {
+            GetResponse<ContentReadDto> response = new GetResponse<ContentReadDto>();
+            List<ContentReadDto> contentReadDtoList = new List<ContentReadDto>();
+
+            try
+            {
+                if (ContentId.Count == 0)
+                    return StatusCode(StatusCodes.Status404NotFound);
+
+                else
+                {
+                    foreach (var content in ContentId)
+                    {
+                        var promotions = _unitOfWork.PromotionRepository.Get(null, x => x.Advertisement_Id == Convert.ToInt32(content), null, null).ToList();
+
+                        if (promotions.Count == 0)
+                            continue;
+                        else
+                        {
+                            foreach (var promotion in promotions)
+                            {
+                                ContentReadDto contentReadDto = new ContentReadDto();
+                                contentReadDto.PromotionId = Obfuscation.Encode(Convert.ToInt32(promotion.PromotionId));
+                                contentReadDto.AdvertisementId = Obfuscation.Encode(Convert.ToInt32(promotion.Advertisement_Id));
+                                contentReadDto.Title = promotion.Title;
+                                contentReadDto.Subtitle = promotion.Subtitle;
+                                contentReadDto.LogoUrl = promotion.LogoUrl;
+                                contentReadDto.Type = promotion.Type.ToString();
+
+                                contentReadDtoList.Add(contentReadDto);
+                            }
+                        }
+                    }
+                    response.Status = true;
+                    response.Message = CommonMessage.PromotionsRetrived;
+
+                    response.Data = contentReadDtoList;
+                    response.Code = StatusCodes.Status200OK;
+
+                    return StatusCode(response.Code, response);
+                }
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, ReturnResponse.ExceptionResponse(e));
+            }
+
+        }
     }
 }
