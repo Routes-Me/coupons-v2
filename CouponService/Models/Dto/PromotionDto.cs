@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace CouponService.Models.Dto
+﻿namespace CouponService.Models.Dto
 {
     public class PromotionCouponDto
     {
@@ -19,15 +17,10 @@ namespace CouponService.Models.Dto
 
     public class PromotionLinkDto
     {
-        public PromotionLinkDto()
-        {
-            Link = new LinkReadDto();
-        }
-
         public string Title { get; set; }
         public string Subtitle { get; set; }
         public string Code { get; set; }
-        public virtual LinkReadDto Link { get; set; }
+        public LinkReadDto Links { get; set; }
         public string Type { get; set; }
         public string AdvertisementId { get; set; }
         public string InstitutionId { get; set; }

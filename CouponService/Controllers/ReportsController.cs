@@ -1,5 +1,4 @@
 ﻿using CouponService.Abstraction;
-using CouponService.Models;
 using CouponService.Models.Dto;
 using CouponService.Models.Entities;
 using Microsoft.AspNetCore.Http;
@@ -38,7 +37,7 @@ namespace CouponService.Controllers
                 {
                     foreach (var id in advertisementId)
                     {
-                        var promotions = _unitOfWork.PromotionRepository.Get(null, x => x.Advertisement_Id == Convert.ToInt32(id), null, x => x.Coupon, x => x.Link);
+                        var promotions = _unitOfWork.PromotionRepository.Get(null, x => x.Advertisement_Id == Convert.ToInt32(id), null, x => x.Coupon, x => x.Link).ToList();
                         if (promotions.Count == 0)
                             continue;
 
@@ -46,34 +45,41 @@ namespace CouponService.Controllers
                         {
                             if (promotion.Type == PromotionType.Coupons)
                             {
-                                var promotionCouponDto = new PromotionCouponDto();
-                                promotionCouponDto.Title = promotion.Title;
-                                promotionCouponDto.Subtitle = promotion.Subtitle;
-                                promotionCouponDto.Code = promotion.Code;
-                                promotionCouponDto.CreatedAt = promotion.CreatedAt.ToString();
+                                var promotionCouponDto = new PromotionCouponDto
+                                {
+                                    Title = promotion.Title,
+                                    Subtitle = promotion.Subtitle,
+                                    Code = promotion.Code,
+                                    CreatedAt = promotion.CreatedAt.ToString(),
 
-                                promotionCouponDto.UsageLimit = promotion.UsageLimit;
-                                promotionCouponDto.IsSharable = promotion.IsSharable;
-                                promotionCouponDto.AdvertisementId = Obfuscation.Encode(Convert.ToInt32(promotion.Advertisement_Id));
-                                promotionCouponDto.InstitutionId = Obfuscation.Encode(Convert.ToInt32(promotion.Institution_Id));
-                                promotionCouponDto.PromotionId = Obfuscation.Encode(Convert.ToInt32(promotion.PromotionId));
-                                promotionCouponDto.Type = promotion.Type.ToString();
+                                    UsageLimit = promotion.UsageLimit,
+                                    IsSharable = promotion.IsSharable,
+                                    AdvertisementId = Obfuscation.Encode(Convert.ToInt32(promotion.Advertisement_Id)),
+                                    InstitutionId = Obfuscation.Encode(Convert.ToInt32(promotion.Institution_Id)),
+                                    PromotionId = Obfuscation.Encode(Convert.ToInt32(promotion.PromotionId)),
+                                    Type = promotion.Type.ToString()
+                                };
                                 list.Add(promotionCouponDto);
                             }
 
                             if (promotion.Type == PromotionType.Links)
                             {
-                                var promotionLinkDto = new PromotionLinkDto();
-                                promotionLinkDto.Title = promotion.Title;
-                                promotionLinkDto.Subtitle = promotion.Subtitle;
-                                promotionLinkDto.Code = promotion.Code;
-                                promotionLinkDto.Link.Web = promotion.Link.Web;
-                                promotionLinkDto.Link.Ios = promotion.Link.Ios;
-                                promotionLinkDto.Link.Android =  promotion.Link.Android;
-                                promotionLinkDto.Type = promotion.Type.ToString();
-                                promotionLinkDto.AdvertisementId = Obfuscation.Encode(Convert.ToInt32(promotion.Advertisement_Id));
-                                promotionLinkDto.InstitutionId = Obfuscation.Encode(Convert.ToInt32(promotion.Institution_Id));
-                                promotionLinkDto.PromotionId = Obfuscation.Encode(Convert.ToInt32(promotion.PromotionId));
+                                var promotionLinkDto = new PromotionLinkDto
+                                {
+                                    Title = promotion.Title,
+                                    Subtitle = promotion.Subtitle,
+                                    Code = promotion.Code,
+                                    Type = promotion.Type.ToString(),
+                                    Links = new LinkReadDto()
+                                    {
+                                        Web = promotion.Link.Web,
+                                        Ios = promotion.Link.Ios,
+                                        Android = promotion.Link.Android,
+                                    },
+                                    AdvertisementId = Obfuscation.Encode(Convert.ToInt32(promotion.Advertisement_Id)),
+                                    InstitutionId = Obfuscation.Encode(Convert.ToInt32(promotion.Institution_Id)),
+                                    PromotionId = Obfuscation.Encode(Convert.ToInt32(promotion.PromotionId))
+                                };
 
                                 list.Add(promotionLinkDto);
                             }
