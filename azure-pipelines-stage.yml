@@ -10,10 +10,10 @@ resources:
 
 variables:
   # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: '8b86e3df-5911-4962-9ad5-ac8cd43c183b'
+  dockerRegistryServiceConnection: 'd18842f5-40f3-4eb7-b305-4a2cc61d5325'
   imageRepository: 'couponsservicev2'
   containerRegistry: 'stagenoruaebscontainerregistry.azurecr.io'
-  dockerfilePath: '**/Dockerfile.stage'
+  dockerfilePath: '$(Build.SourcesDirectory)/CouponService/Dockerfile.stage'
   tag: '$(Build.BuildId)'
 
   # Agent VM image name
