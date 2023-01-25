@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using RoutesSecurity;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using static CouponService.Models.ResponseModel.Response;
 
 namespace CouponService.Controllers
